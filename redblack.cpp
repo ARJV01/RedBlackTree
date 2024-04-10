@@ -133,11 +133,11 @@ void add(Node* &root,int newData) {//adds the values to the tree
 
 void fixer(Node* current,Node*root) {
   while(current != root && current -> getP() -> getC() == 1) {//while parent is red
-    cout << "here1" << endl;
+    
     if(current -> getP() == current->getP()->getP()->getR()) {//if uncle is the left child
       Node* uncle = current->getP()->getP()->getL();
       if(uncle -> getC() == 1) {// if parent is red and uncle is red
-	cout << "here" << endl;
+      
 	current -> getP() -> setC(0);
 	uncle->setC(0);
 	current->getP()->getP()->setC(1);
@@ -154,13 +154,6 @@ void fixer(Node* current,Node*root) {
 	current ->getP() -> getP() ->setC(1);
 	lRotate(current->getP()->getP());
 	}
-
-      if(current == root) {
-	current->setC(0);
-      }
-       print(root,0);
-
-      cout << "sss" << endl;
       }
     else {//if uncle is right child
       Node* uncle = current->getP()->getP()->getR();
@@ -183,12 +176,12 @@ void fixer(Node* current,Node*root) {
         current ->getP() -> getP() ->setC(1);
         rRotate(current->getP()->getP());
         }
-       if(current == root) {
+      }
+    if(current == root) {//if the new thing to be changed is the root just set it too black
       current->setC(0);
-    }
-      }
       }
     }
+  }
 
 void rRotate(Node* node) {
   Node* parent = node->getP();
