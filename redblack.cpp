@@ -61,7 +61,7 @@ public:
 
 void enter(Node* &root);
 void add(Node* &root,int newData);
-void fixer(Node* current);
+void fixer(Node* current,Node* root);
 void rRotate(Node* node);
 void lRotate(Node* node);
 void print(Node* root,int level);//prints out the tree
@@ -126,28 +126,26 @@ void add(Node* &root,int newData) {//adds the values to the tree
       current = parent->getL();
       current -> setP(parent);
     }
-    fixer(current);
+    fixer(current, root);
   }
 }
 
 
-void fixer(Node* current) {
-  cout << "parent is" << current -> getP() -> getC() << endl;
-  while(current -> getP() -> getC() == 1) {//while parent is red
-    cout << "here" << endl;
-    if(current -> getP() == current->getP()->getP()->getR()) {//if uncle is the left child 
+void fixer(Node* current,Node*root) {
+  while(current != root && current -> getP() -> getC() == 1) {//while parent is red
+    cout << "here1" << endl;
+    if(current -> getP() == current->getP()->getP()->getR()) {//if uncle is the left child
       Node* uncle = current->getP()->getP()->getL();
-
       if(uncle -> getC() == 1) {// if parent is red and uncle is red
+	cout << "here" << endl;
 	current -> getP() -> setC(0);
 	uncle->setC(0);
 	current->getP()->getP()->setC(1);
 	current = current->getP()->getP();
       }
 
-      else if(uncle -> getC() == 0) {// parent is red and u is black
-
-	if(current->getP() -> getL() == current) {
+      else if(uncle -> getC() == 0 || uncle == NULL) {// parent is red and u is black
+	if(current->getP() -> getL() == current) {//current is a left child
 	  current = current->getP();
 	  rRotate(current);
 	}
@@ -156,6 +154,13 @@ void fixer(Node* current) {
 	current ->getP() -> getP() ->setC(1);
 	lRotate(current->getP()->getP());
 	}
+
+      if(current == root) {
+	current->setC(0);
+      }
+       print(root,0);
+
+      cout << "sss" << endl;
       }
     else {//if uncle is right child
       Node* uncle = current->getP()->getP()->getR();
@@ -167,7 +172,7 @@ void fixer(Node* current) {
         current = current->getP()->getP();
       }
 
-      else if(uncle -> getC() == 0) {// parent is red and u is black
+      else if(uncle -> getC() == 0 || uncle == NULL) {// parent is red and u is black
 
 	if(current->getP() -> getR() == current) {
           current = current->getP();
@@ -178,6 +183,9 @@ void fixer(Node* current) {
         current ->getP() -> getP() ->setC(1);
         rRotate(current->getP()->getP());
         }
+       if(current == root) {
+      current->setC(0);
+    }
       }
       }
     }
@@ -223,6 +231,6 @@ void print(Node* root,int level) {//will print the tree
   for(int i = 0; i < level; i++) {
     cout << "\t";
   }
-  cout << root->getV() << endl;//prints the current value
+  cout << 'V' << root->getV() << "C" << root->getC() << endl;//prints the current value
   print(root->getL(), level + 1);//prints the left subtree
 }
