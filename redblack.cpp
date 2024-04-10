@@ -59,64 +59,84 @@ public:
   ~Node() {}//destructor
 };
 
-void enter(Node* root);
-void add(Node* root,int newData);
-void insert(Node* current);
+void enter(Node* &root);
+void add(Node* &root,int newData);
+void fixer(Node* current);
 void rRotate(Node* node);
 void lRotate(Node* node);
-Node* getUncle(Node* current);
+void print(Node* root,int level);//prints out the tree
 
 int main() {
   bool sR = true;
   char input[80];
-  Node* root;
+  Node* root = NULL;
 
   while (sR == true) {
+    cout << "Enter add or quit" << endl;
     cin >> input;
     if(strcmp(input, "add") == 0) {
+      enter(root);
+    }
+    if(strcmp(input, "print") == 0) {
+      print(root,0);
+    }
+    if(strcmp(input, "quit") == 0) {
       enter(root);
     }
   }
   return 0;
 }
 
-void enter(Node* root) {
+void enter(Node* &root) {
   int input = 0;
   cout << "enter a number" << endl;
   cin >> input;
   add(root, input);
 }
 
-void add(Node* root,int newData) {
-  Node* current = root;
-  Node* parent = NULL;
-
-  if(root == NULL) {
+void add(Node* &root,int newData) {//adds the values to the tree
+  if(root == NULL) {//when there is nothing in the tree
     root = new Node(newData);
+    root ->setC(0);
+    return;
   }
+  else {// if the root is not null
+    Node* current = root;
+    Node* parent = NULL;
+    bool right = NULL;
+    while(current != NULL) {//iterate down the left or right sub trees
+      parent = current;
+      if(current->getV() > newData) {//left subtree
+	current = current ->getL();
+	right = false;
+      }
+      else if(current->getV() < newData) {//right subtree
+	current = current -> getR();
+	right = true;
+      }
 
-  else {
-  while(current != NULL) {
-    if (current->getV() < newData) {
-      parent = current;
-      current = current->getR();
-    }
-    if (current->getV() > newData) {
-      parent = current;
-      current = current->getL();
-    }
-    current = new Node(newData);
-    current->setP(parent);
   }
+    if(right == true) {//set new right node
+      parent ->setR(new Node(newData));
+      current = parent -> getR();
+      current -> setP(parent);
+    }
+    else if(right == false) {//set new left node
+      parent -> setL(new Node(newData));
+      current = parent->getL();
+      current -> setP(parent);
+    }
+    fixer(current);
   }
-  insert(current);
 }
 
-void insert(Node* current) {
-  Node* uncle = getUncle(current);
-  while(current -> getP() -> getC() == 1) {//while parent is red
 
+void fixer(Node* current) {
+  cout << "parent is" << current -> getP() -> getC() << endl;
+  while(current -> getP() -> getC() == 1) {//while parent is red
+    cout << "here" << endl;
     if(current -> getP() == current->getP()->getP()->getR()) {//if uncle is the left child 
+      Node* uncle = current->getP()->getP()->getL();
 
       if(uncle -> getC() == 1) {// if parent is red and uncle is red
 	current -> getP() -> setC(0);
@@ -126,9 +146,10 @@ void insert(Node* current) {
       }
 
       else if(uncle -> getC() == 0) {// parent is red and u is black
+
 	if(current->getP() -> getL() == current) {
 	  current = current->getP();
-	  rRotate(current->getP());
+	  rRotate(current);
 	}
 
 	current->getP() -> setC(0);
@@ -137,16 +158,20 @@ void insert(Node* current) {
 	}
       }
     else {//if uncle is right child
+      Node* uncle = current->getP()->getP()->getR();
+
       if(uncle -> getC() == 1) {// if parent is red and uncle is red
         current -> getP() -> setC(0);
         uncle->setC(0);
         current->getP()->getP()->setC(1);
         current = current->getP()->getP();
       }
+
       else if(uncle -> getC() == 0) {// parent is red and u is black
-        if(current->getP() -> getR() == current) {
+
+	if(current->getP() -> getR() == current) {
           current = current->getP();
-          lRotate(current->getP());
+          lRotate(current);
         }
 
         current->getP() -> setC(0);
@@ -189,14 +214,15 @@ void lRotate(Node* node) {
 
 }
 
-Node* getUncle(Node* current) {
-  Node* uncle = NULL;
-  if(current -> getP() == current->getP()->getP()->getR()) {
-    uncle =  current->getP()->getP()->getL();
-   }
-  else {
-    uncle =  current->getP()->getP()->getR();
+void print(Node* root,int level) {//will print the tree
+  if (!root) {//if nothing in tree or nothing left to print
+    return;
   }
-  return uncle;
-}
+  print(root->getR(), level + 1);//prints out the left subtree
 
+  for(int i = 0; i < level; i++) {
+    cout << "\t";
+  }
+  cout << root->getV() << endl;//prints the current value
+  print(root->getL(), level + 1);//prints the left subtree
+}
