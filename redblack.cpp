@@ -1,6 +1,11 @@
+// Arjun Vinsel
+// 11-APR-2024
+// this is a red black tree. This tree is an extension of a binary serach tree.
+
 #include <iostream>
 #include <string>
 #include <cstring>
+#include <fstream>
 
 using namespace std;
 
@@ -17,10 +22,12 @@ struct Node
 
 void enter(Node *&root);
 void add(Node *&root, int newData);
-void fixer(Node *current, Node *root);
+void fixer(Node *current, Node *&root);
 void rRotate(Node *node, Node *&root);
 void lRotate(Node *node, Node *&root);
 void print(Node *root, int level); // prints out the tree
+void find(Node *root, int value);  // finds values in the tree
+void addFile(Node *&root);
 
 int main()
 {
@@ -30,11 +37,22 @@ int main()
 
     while (sR == true)
     {
-        cout << "Enter add or quit" << endl;
+        cout << "Enter add, addfile, find, or quit" << endl;
         cin >> input;
         if (strcmp(input, "add") == 0)
         {
             enter(root);
+        }
+        if (strcmp(input, "find") == 0)
+        {
+            int value = 0;
+            cout << "please enter in a number" << endl;
+            cin >> value;
+            find(root, value);
+        }
+        if (strcmp(input, "addfile") == 0)
+        {
+            addFile(root);
         }
         if (strcmp(input, "print") == 0)
         {
@@ -54,6 +72,20 @@ void enter(Node *&root)
     cout << "enter a number" << endl;
     cin >> input;
     add(root, input);
+}
+
+void addFile(Node *&root)
+{ // Will add ints from a file
+    cout << "enter file name(and .txt) " << endl;
+    char input[20];
+    cin >> input;
+    ifstream fin(input);
+    int temp;
+    while (fin >> temp)
+    {
+        add(root, temp);
+    }
+    fin.close();
 }
 
 void add(Node *&root, int newData)
@@ -99,7 +131,7 @@ void add(Node *&root, int newData)
     }
 }
 
-void fixer(Node *current, Node *root)
+void fixer(Node *current, Node *&root)
 {
     while (current != root && current->parent->color == 1)
     { // while parent is red
@@ -230,4 +262,20 @@ void rRotate(Node *node, Node *&root)
 
     x->right = node;
     node->parent = x;
+}
+
+void find(Node *root, int value)
+{ // will find values
+    if (!root)
+    {
+        return;
+    }
+
+    if (root->data == value)
+    {
+        cout << "The given value is in the tree" << endl;
+        return;
+    }
+    find(root->left, value);  // searches the left subtree
+    find(root->right, value); // searches the right subtree
 }
