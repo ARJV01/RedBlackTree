@@ -15,19 +15,21 @@ struct Node
     Node *parent;
     Node *left;
     Node *right;
-    int color;
+    int color; // One is red zero is black
 
-    Node(int x) : data(x), parent(NULL), left(NULL), right(NULL), color(1) {}
+    Node(int x) : data(x), parent(NULL), left(NULL), right(NULL), color(1) {} // sets color to red on construction
 };
 
-void enter(Node *&root);
-void add(Node *&root, int newData);
-void fixer(Node *current, Node *&root);
-void rRotate(Node *node, Node *&root);
-void lRotate(Node *node, Node *&root);
-void print(Node *root, int level); // prints out the tree
-void find(Node *root, int value);  // finds values in the tree
-void addFile(Node *&root);
+void enter(Node *&root);                         // asks for user input for numbers
+void add(Node *&root, int newData);              // adds nodes to the tree folowing binary search tree rules
+void fixer(Node *current, Node *&root);          // This funtion will fix the tree after new nodes are added
+void rRotate(Node *node, Node *&root);           // right rotation
+void lRotate(Node *node, Node *&root);           // left rotation
+void print(Node *root, int level);               // prints out the tree
+void find(Node *root, int value);                // finds values in the tree
+void addFile(Node *&root);                       // add numbrers from file
+Node *findR(Node *root, int value);              // finds nodes
+void remove(Node *n, Node *parent, Node *&root); // removes nodes
 
 int main()
 {
@@ -67,7 +69,7 @@ int main()
 }
 
 void enter(Node *&root)
-{
+{ // will ask for user input and add this to the tree
     int input = 0;
     cout << "enter a number" << endl;
     cin >> input;
@@ -132,7 +134,7 @@ void add(Node *&root, int newData)
 }
 
 void fixer(Node *current, Node *&root)
-{
+{ // responsible for fixing the tree after the add funtion
     while (current != root && current->parent->color == 1)
     { // while parent is red
 
@@ -177,7 +179,7 @@ void fixer(Node *current, Node *&root)
             { // parent is red and u is black
 
                 if (current->parent->right == current)
-                {
+                { // if parent is right child
                     current = current->parent;
                     lRotate(current, root);
                 }
@@ -206,43 +208,66 @@ void print(Node *root, int level)
     {
         cout << "\t";
     }
-    cout << 'V' << root->data << "C" << root->color << endl; // prints the current value
-    print(root->left, level + 1);                            // prints the left subtree
-}
-
-void lRotate(Node *node, Node *&root)
-{
-    Node *y = node->right;
-    node->right = y->left;
-    if (y->left != NULL)
+    if (root->parent != NULL)
     {
-        y->left->parent = node;
-    }
-    y->parent = node->parent;
-
-    if (node->parent == NULL)
-    {
-        root = y;
-    }
-    else if (node == node->parent->left)
-    {
-        node->parent->left = y;
+        if (root->color == 1)
+        {
+            cout << 'V' << root->data << " R "
+                 << "P" << root->parent->data << endl;
+        }
+        else
+        {
+            cout << 'V' << root->data << " B "
+                 << "P" << root->parent->data << endl;
+        }
     }
     else
     {
-        node->parent->right = y;
+        if (root->color == 1)
+        {
+            cout << 'V' << root->data << " R " << endl;
+        }
+        else
+        {
+            cout << 'V' << root->data << " B " << endl;
+        }
+    }
+    print(root->left, level + 1); // prints the left subtree
+}
+
+void lRotate(Node *node, Node *&root)
+{ // left rotation
+    Node *x = node->right;
+    node->right = x->left;
+    if (x->left != NULL)
+    {
+        x->left->parent = node;
+    }
+    x->parent = node->parent;
+
+    if (node->parent == NULL)
+    {
+        root = x;
+    }
+    else if (node == node->parent->left)
+    {
+        node->parent->left = x;
+    }
+    else
+    {
+        node->parent->right = x;
     }
 
-    y->left = node;
-    node->parent = y;
+    x->left = node;
+    node->parent = x;
 }
 
 void rRotate(Node *node, Node *&root)
-{
+{ // right rotation
     Node *x = node->left;
     node->left = x->right;
     if (x->right != NULL)
-    {
+    { // rights child is not NULL
         x->right->parent = node;
     }
     x->parent = node->parent;
@@ -276,6 +301,108 @@ void find(Node *root, int value)
         cout << "The given value is in the tree" << endl;
         return;
     }
-    find(root->left, value);  // searches the left subtree
-    find(root->right, value); // searches the right subtree
+
+    if (root->data > value)
+    {
+        find(root->left, value); // searches the left subtree
+    }
+    else
+    {
+        find(root->right, value); // searches the right subtree
+    }
+}
+
+void remove(Node *n, Node *parent, Node *&root)
+{ // will remove a node
+    if (n == NULL)
+    { // if n is null
+        return;
+    }
+
+    if (n->left == NULL && n->right == NULL)
+    { // no children
+        if (parent != NULL)
+        { // if there is a parent
+            if (parent->left == n)
+            {                        // if n is left
+                parent->left = NULL; // set parent left to null
+            }
+            else
+            {
+                parent->right = NULL; // sets right to null
+            }
+        }
+        else
+        {
+            root = NULL; // If root is being removed
+        }
+        delete n;
+        return;
+    }
+
+    if ((n->left == NULL) != (n->right == NULL))
+    { // one child
+        Node *child;
+        if (n->left != NULL)
+        { // if left child exists
+            child = n->left;
+        }
+        else
+        { // if right child exists
+            child = n->right;
+        }
+        if (parent != NULL)
+        { // if there is a parent
+            if (parent->left == n)
+            { // if parents lchild is n
+                parent->left = child;
+            }
+            else
+            { // if rchild is n
+                parent->right = child;
+            }
+        }
+        else
+        { // if the root needs to be removed
+            root = child;
+        }
+        delete n;
+        return;
+    }
+    else
+    {                       // for two child
+        Node *s = n->right; // sets s to the r child of n
+        Node *sP = NULL;    // sets s parent to NULL
+        while (s->left != NULL)
+        {                // while s does not have a l child
+            sP = s;      // s aprent = s
+            s = s->left; // s = s lchild
+        }
+
+        if (sP != NULL)
+        {                        // if s parent exists
+            sP->left = s->right; // parent's left is s's right
+        }
+        else                     // if it dosent exist
+            n->right = s->right; // n's right is s's right
+
+        n->data = s->data; // set the value of n to the value of s
+        delete s;          // delete s
+    }
+}
+
+Node *findR(Node *root, int value)
+{ // find the node
+    if (root == nullptr || root->data == value)
+    {
+        return root;
+    }
+
+    Node *leftResult = findR(root->left, value);
+    if (leftResult != nullptr)
+    {
+        return leftResult;
+    }
+
+    return findR(root->right, value);
 }
