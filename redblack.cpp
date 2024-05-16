@@ -20,16 +20,18 @@ struct Node
     Node(int x) : data(x), parent(NULL), left(NULL), right(NULL), color(1) {} // sets color to red on construction
 };
 
-void enter(Node *&root);                         // asks for user input for numbers
-void add(Node *&root, int newData);              // adds nodes to the tree folowing binary search tree rules
-void fixer(Node *current, Node *&root);          // This funtion will fix the tree after new nodes are added
-void rRotate(Node *node, Node *&root);           // right rotation
-void lRotate(Node *node, Node *&root);           // left rotation
-void print(Node *root, int level);               // prints out the tree
-void find(Node *root, int value);                // finds values in the tree
-void addFile(Node *&root);                       // add numbrers from file
-Node *findR(Node *root, int value);              // finds nodes
-void remove(Node *n, Node *parent, Node *&root); // removes nodes
+void enter(Node *&root);                        // asks for user input for numbers
+void add(Node *&root, int newData);             // adds nodes to the tree folowing binary search tree rules
+void fixer(Node *current, Node *&root);         // This funtion will fix the tree after new nodes are added
+void fixerD(Node *current, Node *&root);        // this funtion will fix the tree after a node is removed
+void transplant(Node *u, Node *v, Node *&root); // this funtion will transplant nodes in the tree. This will be used in the deletion funtion
+void rRotate(Node *node, Node *&root);          // right rotation
+void lRotate(Node *node, Node *&root);          // left rotation
+void print(Node *root, int level);              // prints out the tree
+void find(Node *root, int value);               // finds values in the tree
+void addFile(Node *&root);                      // add numbrers from file
+Node *findR(Node *root, int value);             // finds nodes
+void remove(Node *current, Node *&root);        // removes nodes
 
 int main()
 {
@@ -39,7 +41,7 @@ int main()
 
     while (sR == true)
     {
-        cout << "Enter add, addfile, find, or quit" << endl;
+        cout << "Enter add, addfile, find, remove, or quit" << endl;
         cin >> input;
         if (strcmp(input, "add") == 0)
         {
@@ -59,6 +61,14 @@ int main()
         if (strcmp(input, "print") == 0)
         {
             print(root, 0);
+        }
+        if (strcmp(input, "remove") == 0)
+        {
+            cout << "Please enter the value you wish to remove " << endl;
+            int findI = 0;
+            cin >> findI;
+            Node *current = findR(root, findI);
+            remove(current, root);
         }
         if (strcmp(input, "quit") == 0)
         {
@@ -312,85 +322,6 @@ void find(Node *root, int value)
     }
 }
 
-void remove(Node *n, Node *parent, Node *&root)
-{ // will remove a node
-    if (n == NULL)
-    { // if n is null
-        return;
-    }
-
-    if (n->left == NULL && n->right == NULL)
-    { // no children
-        if (parent != NULL)
-        { // if there is a parent
-            if (parent->left == n)
-            {                        // if n is left
-                parent->left = NULL; // set parent left to null
-            }
-            else
-            {
-                parent->right = NULL; // sets right to null
-            }
-        }
-        else
-        {
-            root = NULL; // If root is being removed
-        }
-        delete n;
-        return;
-    }
-
-    if ((n->left == NULL) != (n->right == NULL))
-    { // one child
-        Node *child;
-        if (n->left != NULL)
-        { // if left child exists
-            child = n->left;
-        }
-        else
-        { // if right child exists
-            child = n->right;
-        }
-        if (parent != NULL)
-        { // if there is a parent
-            if (parent->left == n)
-            { // if parents lchild is n
-                parent->left = child;
-            }
-            else
-            { // if rchild is n
-                parent->right = child;
-            }
-        }
-        else
-        { // if the root needs to be removed
-            root = child;
-        }
-        delete n;
-        return;
-    }
-    else
-    {                       // for two child
-        Node *s = n->right; // sets s to the r child of n
-        Node *sP = NULL;    // sets s parent to NULL
-        while (s->left != NULL)
-        {                // while s does not have a l child
-            sP = s;      // s aprent = s
-            s = s->left; // s = s lchild
-        }
-
-        if (sP != NULL)
-        {                        // if s parent exists
-            sP->left = s->right; // parent's left is s's right
-        }
-        else                     // if it dosent exist
-            n->right = s->right; // n's right is s's right
-
-        n->data = s->data; // set the value of n to the value of s
-        delete s;          // delete s
-    }
-}
-
 Node *findR(Node *root, int value)
 { // find the node
     if (root == nullptr || root->data == value)
@@ -405,4 +336,156 @@ Node *findR(Node *root, int value)
     }
 
     return findR(root->right, value);
+}
+
+void transplant(Node *u, Node *v, Node *&root)
+{//This funtion
+    if (u->parent == NULL)
+    { // if root
+        root = v;
+    }
+    else if (u == u->parent->left)
+    { // if left child
+        u->parent->left = v;
+    }
+    else
+    { // if right child
+        u->parent->right = v;
+    }
+    if (v != NULL)
+    {
+        v->parent = u->parent;
+    }
+}
+
+void remove(Node *current, Node *&root)
+{//removes nodes rom the tree and calls the fixerD to fix the tree as per Red Black standards
+    int oc = current->color;
+    Node *x;
+    if (current->left == NULL)
+    { // case 1 no left child
+        x = current->right;
+        transplant(current, x, root);
+    }
+    if (current->right == NULL)
+    { // case 2 no right child
+        x = current->left;
+        transplant(current, x, root);
+    }
+    if (current->right != NULL && current->left != NULL)
+    { // case 3 has both children
+        Node *y = current->right;
+        while (y->left != NULL)
+        {
+            y = y->left;
+        } // find minumuim
+        oc = y->color;
+        x = y->right;
+        if(x==NULL) {
+            x = new Node(NULL);
+            x->parent = y;
+        }
+
+        if (y->parent == current)
+        {
+            if (x != NULL)
+            {
+                x->parent = y;
+            }
+        }
+        else
+        {
+            transplant(y, y->right, root);
+            y->right = current->right;
+            y->right->parent = y;
+        }
+        transplant(current, y, root);
+        y->left = current->left;
+        y->left->parent = y;
+        y->color = current->color;
+    }
+    delete current;
+    if (oc == 0)
+    {
+        fixerD(x, root);
+    }
+}
+
+void fixerD(Node *current, Node *&root)
+{ // fixes the tree when a node is removed as to follow redblack requirments
+    while (current != root && current->color == 0)
+    {
+        Node *s;
+        if (current->parent->left == current)
+        {
+            s = current->parent->right;
+            if (s->color == 1)
+            { // case 1
+                s->color = 0;
+                current->parent->color = 1;
+                lRotate(current->parent, root);
+                current = current->parent->right;
+            }
+            if ((s == NULL || (s != NULL && s->color == 0)) &&
+                (s->left == NULL || (s->left != NULL && s->left->color == 0)) &&
+                (s->right == NULL || (s->right != NULL && s->right->color == 0)))
+            { // case 2
+                s->color = 1;
+                current = current->parent;
+            }
+            if ((s == NULL || (s != NULL && s->color == 0)) &&
+                (s->left != NULL && (s->left->color == 1)) &&
+                (s->right == NULL || (s->right != NULL && s->right->color == 0)))
+            { // case 3
+                s->left->color = 0;
+                s->color = 1;
+                rRotate(s, root);
+                s = current->parent->right;
+            }
+            if ((s == NULL || (s != NULL && s->color == 0)) &&
+                (s->right != NULL && (s->right->color == 1)))
+            {
+                s->color = current->parent->color;
+                current->parent->color = 0;
+                lRotate(current->parent, root);
+                current = root;
+            }
+        }
+        else
+        { // if s is the left child
+            s = current->parent->left;
+            if (s->color == 1)
+            { // case 1
+                s->color = 0;
+                current->parent->color = 1;
+                rRotate(current->parent, root);
+                current = current->parent->right;
+            }
+            if ((s == NULL || (s != NULL && s->color == 0)) &&
+                (s->left == NULL || (s->left != NULL && s->left->color == 0)) &&
+                (s->right == NULL || (s->right != NULL && s->right->color == 0)))
+            { // case 2
+                s->color = 1;
+                current = current->parent;
+            }
+            if ((s == NULL || (s != NULL && s->color == 0)) &&
+                (s->left != NULL && (s->left->color == 1)) &&
+                (s->right == NULL || (s->right != NULL && s->right->color == 0)))
+            { // case 3
+                s->left->color = 0;
+                s->color = 1;
+                lRotate(s, root);
+                s = current->parent->right;
+            }
+            if ((s == NULL || (s != NULL && s->color == 0)) &&
+                (s->right != NULL && (s->right->color == 1)))
+            {
+                s->color = current->parent->color;
+                current->parent->color = 0;
+                rRotate(current->parent, root);
+                current = root;
+            }
+        }
+    }
+    current->color = 0;
 }
