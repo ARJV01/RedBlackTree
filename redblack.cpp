@@ -1,6 +1,6 @@
 // Arjun Vinsel
-// 11-APR-2024
-// this is a red black tree. This tree is an extension of a binary serach tree.
+// 22-MAY-2024
+// this is a red black tree. This tree is an extension of a binary serach tree. This tree can add remove and preform other funtions
 
 #include <iostream>
 #include <string>
@@ -10,7 +10,7 @@
 using namespace std;
 
 struct Node
-{
+{//Thus is the node struct for the tree
     int data;
     Node *parent;
     Node *left;
@@ -219,26 +219,26 @@ void print(Node *root, int level)
         cout << "\t";
     }
     if (root->parent != NULL)
-    {
+    {//if it has a parent
         if (root->color == 1)
-        {
+        {//if the node is red
             cout << 'V' << root->data << " R "
                  << "P" << root->parent->data << endl;
         }
         else
-        {
+        {//if it is black
             cout << 'V' << root->data << " B "
                  << "P" << root->parent->data << endl;
         }
     }
     else
-    {
+    {//if it does not have a parent
         if (root->color == 1)
-        {
+        {//if it is red
             cout << 'V' << root->data << " R " << endl;
         }
         else
-        {
+        {//if it is black
             cout << 'V' << root->data << " B " << endl;
         }
     }
