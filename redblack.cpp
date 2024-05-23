@@ -364,19 +364,16 @@ void remove(Node *current, Node *&root)
     Node *x;
     if (current->left == NULL)
     { // case 1 no left child
-     cout << "in case 1" << endl;
         x = current->right;
         transplant(current, current->right, root);
     }
     if (current->right == NULL)
     { // case 2 no right child
-     cout << "in case 2" << endl;
         x = current->left;
         transplant(current, current->left, root);
     }
     if (current->right != NULL && current->left != NULL)
     { // case 3 has both children
-    cout << "in case 3" << endl;
         Node *y = current->right;
         while (y->left != NULL)
         {
