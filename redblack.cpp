@@ -41,7 +41,7 @@ int main()
 
     while (sR == true)
     {
-        cout << "Enter add, addfile, find, remove, or quit" << endl;
+        cout << "Enter add, addfile, find, print, remove, or quit" << endl;
         cin >> input;
         if (strcmp(input, "add") == 0)
         {
@@ -364,16 +364,19 @@ void remove(Node *current, Node *&root)
     Node *x;
     if (current->left == NULL)
     { // case 1 no left child
+     cout << "in case 1" << endl;
         x = current->right;
-        transplant(current, x, root);
+        transplant(current, current->right, root);
     }
     if (current->right == NULL)
     { // case 2 no right child
+     cout << "in case 2" << endl;
         x = current->left;
-        transplant(current, x, root);
+        transplant(current, current->left, root);
     }
     if (current->right != NULL && current->left != NULL)
     { // case 3 has both children
+    cout << "in case 3" << endl;
         Node *y = current->right;
         while (y->left != NULL)
         {
@@ -405,17 +408,18 @@ void remove(Node *current, Node *&root)
         y->color = current->color;
     }
     delete current;
-    if (oc == 0)
-    {
+   if (oc == 0) { // if the node being deleted is black
         fixerD(x, root);
-    }
+   }
 }
 
 void fixerD(Node *current, Node *&root)
 { // fixes the tree when a node is removed as to follow redblack requirments
+//print(root, 0);
+    Node *s;
+    if( current!= NULL) {
     while (current != root && current->color == 0)
     {
-        Node *s;
         if (current->parent->left == current)
         {
             s = current->parent->right;
@@ -488,4 +492,5 @@ void fixerD(Node *current, Node *&root)
         }
     }
     current->color = 0;
+    }
 }
