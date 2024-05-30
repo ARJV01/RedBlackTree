@@ -381,18 +381,19 @@ void remove(Node *current, Node *&root)
         } // find minumuim
         oc = y->color;
         x = y->right;
-        if (x == NULL)
-        {
-            x = new Node(NULL);
-            x->parent = y;
-        }
-
+        
         if (y->parent == current)
         {
             if (x != NULL)
             {
                 x->parent = y;
             }
+            if (x == NULL)
+        {
+            x = new Node(NULL);
+            x->parent = y;
+            x->color = 0;
+        }
         }
         else
         {
@@ -445,7 +446,7 @@ void fixerD(Node *current, Node *&root)
                 s->color = 0;
                 current->parent->color = 1;
                 lRotate(current->parent, root);
-                current = current->parent->right;
+                s = current->parent->right;
             }
             if ((s == NULL || (s != NULL && s->color == 0)) &&
                 (s->left == NULL || (s->left != NULL && s->left->color == 0)) &&
@@ -457,7 +458,7 @@ void fixerD(Node *current, Node *&root)
             else
             {
                 if ((s == NULL || (s != NULL && s->color == 0)) &&
-                    (s->left != NULL && (s->left->color == 1)) &&
+                    (s->left != NULL && (s->left != NULL && s->left->color == 1)) &&
                     (s->right == NULL || (s->right != NULL && s->right->color == 0)))
                 { // case 3
                     s->left->color = 0;
@@ -479,7 +480,7 @@ void fixerD(Node *current, Node *&root)
                 s->color = 0;
                 current->parent->color = 1;
                 rRotate(current->parent, root);
-                current = current->parent->right;
+                s = current->parent->left;
             }
             if ((s == NULL || (s != NULL && s->color == 0)) &&
                 (s->left == NULL || (s->left != NULL && s->left->color == 0)) &&
@@ -491,13 +492,13 @@ void fixerD(Node *current, Node *&root)
             else
             {
                 if ((s == NULL || (s != NULL && s->color == 0)) &&
-                    (s->left != NULL && (s->left->color == 1)) &&
+                    (s->left != NULL && (s->left != NULL && s->left->color == 1)) &&
                     (s->right == NULL || (s->right != NULL && s->right->color == 0)))
                 { // case 3
-                    s->left->color = 0;
+                    s->right->color = 0;
                     s->color = 1;
                     lRotate(s, root);
-                    s = current->parent->right;
+                    s = current->parent->left;
                 }
                 s->color = current->parent->color;
                 current->parent->color = 0;
